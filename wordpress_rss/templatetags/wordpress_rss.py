@@ -3,10 +3,11 @@ import re
 import feedparser
 
 from django import template
+from django.conf import settings
 
 register = template.Library()
 
-@register.tag(name='election_rss')
+@register.tag(name='wordpress_rss')
 def do_rss_latest(parser, token):
     """
     A template tag to grab the latest articles from a given feed.
@@ -32,11 +33,6 @@ def do_rss_latest(parser, token):
 
     category, num_items, var_name = m.groups()
 
-    #if not (category[0] == category[-1]
-    #        and category[0] in ('"', "'")):
-    #    raise template.TemplateSyntaxError(
-    #        "%r's category argument must be in quotes" % tag_name
-    #    )
     try:
         number_of_items = int(num_items)
     except ValueError:
@@ -58,7 +54,12 @@ class GetRSSLatest(template.Node):
         except template.VariableDoesNotExist:
             return ''
         context[self.var_name] = []
-        feed_url = 'http://blogs.seattletimes.com/politicsnorthwest/category/'
+        feed_url = getattr(
+            settings,
+            'WORDPRESS_RSS_BASE_URL', 
+            'http://www.kevinschaul.com'
+        )
+        feed_url += '/category/'
         feed_url += str(actual_category)
         feed_url += '/feed/'
         d = feedparser.parse(feed_url)

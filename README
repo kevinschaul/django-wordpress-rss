@@ -1,0 +1,75 @@
+ =======================
+||                      ||
+|| Django WordPress RSS ||
+||                      ||
+ =======================
+
+A Django template tag for integrating Wordpress articles.
+
+Originally developed for the Seattle Times Election Guide <http://elections.seattletimes.com/>.
+
+ ===============
+|| Installation ||
+ ===============
+
+Install from PyPI using pip:
+
+    pip install django-wordpress-rss
+
+Add `wordpress_rss` to your settings.py file:
+
+    INSTALLED_APPS = (
+        ...
+        'wordpress_rss',
+        ...
+    )
+
+Add `WORDPRESS_RSS_BASE_URL` to your settings.py file, excluding the trailing slash:
+
+    WORDPRESS_RSS_BASE_URL = 'http://www.kevinschaul.com'
+
+ =========
+|| Usage ||
+ =========
+
+Load the new template tag:
+
+    {% load wordpress_rss %}
+
+Configure it. The arguments are as follows:
+1. The template tag (`wordpress_rss`)
+2. A variable containing a string represenation of a category to pull from
+3. The number of articles to pull
+4. (as)
+5. A template variable to save the results in
+
+The resulting template variable will be an array containing rss items, with proerties `href` and `title` (more are planned, feel free to open an issue on GitHub).
+
+ ---------------
+| Full example: |
+ ---------------
+
+settings.py
+
+    ...
+    WORDPRESS_RSS_BASE_URL = 'http://www.kevinschaul.com'
+    ...
+
+views.py
+
+    ...
+    return render(request, 'index.html', {'rss_category': 'widsom'})
+    ...
+
+index.html
+
+    ...
+    {% load wordpress_rss %}
+    {% wordpress_rss rss_category 10 as rss_results %}
+    <ul>
+    {% for item in rss_results %}
+        <li><a href="{{ item.href }}">{{ item.title }}</a></li>
+    {% endfor %}
+    </ul>
+    ...
+
