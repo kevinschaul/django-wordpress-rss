@@ -68,6 +68,7 @@ class GetRSSLatest(template.Node):
                 rss_item = {
                     'title': item.title_detail['value'],
                     'href': item.link,
+                    'summary': item.summary,
                 }
                 context[self.var_name].append(rss_item)
             except AttributeError:
