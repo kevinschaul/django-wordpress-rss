@@ -39,7 +39,7 @@ Load the new template tag:
 Configure it. The arguments are as follows:
 1. The template tag (`wordpress_rss`)
 2. A variable containing a string represenation of a category to pull from
-3. The number of articles to pull
+3. A variable containing the number of articles to pull
 4. (as)
 5. A template variable to save the results in
 
@@ -58,17 +58,20 @@ settings.py
 views.py
 
     ...
-    return render(request, 'index.html', {'rss_category': 'widsom'})
+    return render(request, 'index.html', {'rss_category': 'widsom', 'quantity': 10})
     ...
 
 index.html
 
     ...
     {% load wordpress_rss %}
-    {% wordpress_rss rss_category 10 as rss_results %}
+    {% wordpress_rss rss_category quantity as rss_results %}
     <ul>
     {% for item in rss_results %}
-        <li><a href="{{ item.href }}">{{ item.title }}</a></li>
+        <li>
+            <a href="{{ item.href }}">{{ item.title }}</a>
+            <p>{{ item.summary }}</p>
+        </li>
     {% endfor %}
     </ul>
     ...

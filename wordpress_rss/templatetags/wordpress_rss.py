@@ -24,7 +24,7 @@ def do_rss_latest(parser, token):
             + "category, number of items to retrieve and a variable name"
             % token.contents.split()[0]
         )
-    m = re.search(r'(.*?) ([0-9]+) as (\w+)', args)
+    m = re.search(r'(.*?) (.*?) as (\w+)', args)
 
     if not m:
         raise template.TemplateSyntaxError(
@@ -33,26 +33,27 @@ def do_rss_latest(parser, token):
 
     category, num_items, var_name = m.groups()
 
-    try:
-        number_of_items = int(num_items)
-    except ValueError:
-        raise template.TemplateSyntaxError(
-            "%r's second argument must be a number" % tag_name
-        )
-    return GetRSSLatest(category, number_of_items, var_name)
+    return GetRSSLatest(category, num_items, var_name)
 
 
 class GetRSSLatest(template.Node):
     def __init__(self, category, number_of_items, var_name):
         self.category = template.Variable(category)
-        self.number_of_items = number_of_items
+        self.number_of_items = template.Variable(number_of_items)
         self.var_name = var_name
 
     def render(self, context):
         try:
             actual_category = self.category.resolve(context)
+            actual_num_of_items = self.number_of_items.resolve(context)
         except template.VariableDoesNotExist:
             return ''
+        try:
+            actual_num_of_items = int(actual_num_of_items)
+        except ValueError:
+            raise template.TemplateSyntaxError(
+                "%r's second argument must be a number" % tag_name
+            )
         context[self.var_name] = []
         feed_url = getattr(
             settings,
@@ -63,7 +64,7 @@ class GetRSSLatest(template.Node):
         feed_url += str(actual_category)
         feed_url += '/feed/'
         d = feedparser.parse(feed_url)
-        for item in d.entries[:self.number_of_items]:
+        for item in d.entries[:actual_num_of_items]:
             try:
                 rss_item = {
                     'title': item.title_detail['value'],
