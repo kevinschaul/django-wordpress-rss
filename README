@@ -68,7 +68,10 @@ index.html
     {% wordpress_rss rss_category quantity as rss_results %}
     <ul>
     {% for item in rss_results %}
-        <li><a href="{{ item.href }}">{{ item.title }}</a></li>
+        <li>
+            <a href="{{ item.href }}">{{ item.title }}</a>
+            <p>{{ item.summary }}</p>
+        </li>
     {% endfor %}
     </ul>
     ...
